@@ -210,7 +210,20 @@
   appId: "1:426509746066:web:622d9f74936b9c600c4b4b",
   measurementId: "G-VCJVYQ2YDR"
 };
-    }
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+    function loginWithGoogle() {
+        auth.signInWithRedirect(provider)
+            .then((result) => {
+                const user = result.user;
+                alert(`Welcome ${user.displayName}! 🎉`);
+                document.getElementById('login-modal').style.display = 'none';
+            })
+            .catch((error) => {
+                console.log("Firebase not configured yet, continuing demo mode:", error);
+                document.getElementById('login-modal').style.display = 'none';
+            });
 
     function switchTab(tab) {
         if (tab === 'explore') {
