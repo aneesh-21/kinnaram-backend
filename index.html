@@ -195,16 +195,6 @@
     let currentIndex = 0;
     const currentUserId = 1;
 
-    // Firebase Config Placeholder
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_AUTH_DOMAIN",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_STORAGE_BUCKET",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
-    };
-
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
@@ -237,14 +227,13 @@
     }
 
     async function fetchProfiles() {
-        try {
-            const response = await fetch('http://127.0.0.1:8000/profiles');
-            const data = await response.json();
-            profiles = data.profiles;
-            showProfile();
-        } catch (err) {
-            document.getElementById('card-slot').innerHTML = '<p style="color:red;">Start backend server!</p>';
-        }
+    try {
+        const response = await fetch('https://kinnaram-backend.onrender.com/profiles');
+        const data = await response.json();
+        profiles = data.profiles;
+        showProfile();
+    } catch (err) {
+        document.getElementById('card-slot').innerHTML = '<p style="color:red;">Failed to load profiles</p>';
     }
 
     function showProfile() {
