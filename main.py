@@ -174,3 +174,49 @@ def deduct_user_balance(user_id: int, amount: float):
     )
     conn.commit()
     return {"status": "success", "message": f"{amount} രൂപ ഈടാക്കി"}
+# ഹോസ്റ്റിനുള്ള ഷെയർ കണക്കാക്കി പണം നൽകുന്ന കോമൺ ഫങ്ഷൻ
+def process_host_payout(host_id: int, user_paid_amount: float, host_share_amount: float):
+    cursor.execute(
+        "INSERT INTO host_earnings (host_id, total_earned, available_balance) VALUES (?, ?, ?) "
+        "ON CONFLICT(host_id) DO UPDATE SET "
+        "total_earned = total_earned + ?, "
+        "available_balance = available_balance + ?",
+        (host_id, host_share_amount, host_share_amount, host_share_amount, host_share_amount)
+    )
+    conn.commit()
+
+# 1. മെസ്സേജ് അയക്കുമ്പോൾ (യൂസർ 1 രൂപ തരുമ്പോൾ ഹോസ്റ്റിന് 0.05 രൂപ കിട്ടും)
+@app.post("/charge-message")
+def charge_message(user_id: int, host_id: int):
+    res = deduct_user_balance(user_id, 1.0)
+    if res["status"] == "error":
+        return res
+    
+    process_host_payout(host_id, 1.0, 0.05)
+    return {"status": "success", "message": "മെസ്സേജ് അയച്ചു, പണം ഈടാക്കി"}
+
+# 2. വോയിസ് കോൾ മിനിറ്റിന് (യൂസർ 10 രൂപ തരുമ്പോൾ ഹോസ്റ്റിന് 7 രൂപ കിട്ടും)
+@app.post("/charge-voice-call")
+def charge_voice_call(user_id: int, host_id: int, minutes: float = 1.0):
+    total_cost = 10.0 * minutes
+    host_amount = 7.0 * minutes
+    
+    res = deduct_user_balance(user_id, total_cost)
+    if res["status"] == "error":
+        return res
+        
+    process_host_payout(host_id, total_cost, host_amount)
+    return {"status": "success", "message": f"വോയിസ് കോൾ ചാർജ് ചെയ്തു: {total_cost} രൂപ"}
+
+# 3. വീഡിയോ കോൾ മിനിറ്റിന് (യൂസർ 15 രൂപ തരുമ്പോൾ ഹോസ്റ്റിന് 12 രൂപ കിട്ടും)
+@app.post("/charge-video-call")
+def charge_video_call(user_id: int, host_id: int, minutes: float = 1.0):
+    total_cost = 15.0 * minutes
+    host_amount = 12.0 * minutes
+    
+    res = deduct_user_balance(user_id, total_cost)
+    if res["status"] == "error":
+        return res
+        
+    process_host_payout(host_id, total_cost, host_amount)
+    return {"status": "success", "message": f"വീഡിയോ കോൾ ചാർജ് ചെയ്തു: {total_cost} രൂപ"}
