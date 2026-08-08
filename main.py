@@ -274,3 +274,28 @@ def get_admin_balance():
     result = cursor.fetchone()
     balance = result[0] if result else 0.0
     return {"admin_balance": balance}
+# Database & Table Creation (ആപ്പ് സ്റ്റാർട്ട് ചെയ്യുമ്പോൾ ടേബിൾ ഒട്ടോമാറ്റിക് ക്രിയേറ്റ് ആകാൻ)
+conn = sqlite3.connect("dating_app.db", check_same_thread=False)
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    age INTEGER NOT NULL,
+    location TEXT NOT NULL,
+    bio TEXT,
+    photo_url TEXT
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS likes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    from_user_id INTEGER,
+    to_user_id INTEGER
+)
+""")
+
+conn.commit()
+conn.close()
