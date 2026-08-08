@@ -7,6 +7,9 @@ from typing import Optional
 
 app = FastAPI()
 
+# ഡാറ്റാബേസ് കണക്ഷൻ ഇവിടെ നൽകുക (ഫങ്ഷന് വെളിയിൽ)
+conn = sqlite3.connect("dating_app.db", check_same_thread=False)
+cursor = conn.cursor()
 # CORS Middleware Setup
 app.add_middleware(
     CORSMiddleware,
@@ -16,19 +19,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def init_db():
-    conn = sqlite3.connect("dating_app.db")
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            age INTEGER NOT NULL,
-            location TEXT NOT NULL,
-            bio TEXT,
-            photo_url TEXT
-        )
-    """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS likes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
