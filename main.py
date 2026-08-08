@@ -26,10 +26,8 @@ cursor.execute("""
             to_user_id INTEGER
         )
     """)
-    conn.commit()
-    conn.close()
-
-init_db()
+conn.commit()
+conn.close()
 
 class UserCreate(BaseModel):
     name: str
