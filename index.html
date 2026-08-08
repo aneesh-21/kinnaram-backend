@@ -211,17 +211,15 @@
     const auth = firebase.auth();
     const provider = new firebase.auth.GoogleAuthProvider();
 
-    function loginWithGoogle() {
-        auth.signInWithPopup(provider)
-            .then((result) => {
-                const user = result.user;
-                alert(`Welcome ${user.displayName}! 🎉`);
-                document.getElementById('login-modal').style.display = 'none';
-            })
-            .catch((error) => {
-                console.log("Firebase not configured yet, continuing demo mode:", error);
-                document.getElementById('login-modal').style.display = 'none';
-            });
+  const firebaseConfig = {
+  apiKey: "AIzaSyCJaKi1UUc7p2CXfFjpaFkStvKqd2kcDOM",
+  authDomain: "kinnaram.firebaseapp.com",
+  projectId: "kinnaram",
+  storageBucket: "kinnaram.firebasestorage.app",
+  messagingSenderId: "426509746066",
+  appId: "1:426509746066:web:622d9f74936b9c600c4b4b",
+  measurementId: "G-VCJVYQ2YDR"
+};
     }
 
     function switchTab(tab) {
