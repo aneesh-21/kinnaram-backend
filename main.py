@@ -220,3 +220,69 @@ def charge_video_call(user_id: int, host_id: int, minutes: float = 1.0):
         
     process_host_payout(host_id, total_cost, host_amount)
     return {"status": "success", "message": f"വീഡിയോ കോൾ ചാർജ് ചെയ്തു: {total_cost} രൂപ"}
+# അഡ്മിൻ ബാലൻസ് സേവ് ചെയ്യാനുള്ള ടേബിൾ
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS admin_earnings (
+        id INTEGER PRIMARY KEY,
+        total_balance REAL DEFAULT 0.0
+    )
+''')
+conn.commit()
+
+# അഡ്മിൻ ബാലൻസ് അപ്ഡേറ്റ് ചെയ്യുന്ന ഫങ്ഷൻ
+def add_admin_earnings(amount: float):
+    cursor.execute(
+        "INSERT INTO admin_earnings (id, total_balance) VALUES (1, ?) "
+        "ON CONFLICT(id) DO UPDATE SET total_balance = total_balance + ?",
+        (amount, amount)
+    )
+    conn.commit()
+
+# 1. മെസ്സേജ് അയക്കുമ്പോൾ (ഹോസ്റ്റിന് 0.05, ബാക്കി 0.95 അഡ്മിന്)
+@app.post("/charge-message")
+def charge_message(user_id: int, host_id: int):
+    res = deduct_user_balance(user_id, 1.0)
+    if res["status"] == "error":
+        return res
+    
+    process_host_payout(host_id, 1.0, 0.05)
+    add_admin_earnings(0.95)
+    return {"status": "success", "message": "മെസ്സേജ് അയച്ചു, പണം ഈടാക്കി"}
+
+# 2. വോയിസ് കോൾ (ഹോസ്റ്റിന് 7 രൂപ/മിനിറ്റ്, ബാക്കി 3 രൂപ അഡ്മിന്)
+@app.post("/charge-voice-call")
+def charge_voice_call(user_id: int, host_id: int, minutes: float = 1.0):
+    total_cost = 10.0 * minutes
+    host_amount = 7.0 * minutes
+    admin_amount = 3.0 * minutes
+    
+    res = deduct_user_balance(user_id, total_cost)
+    if res["status"] == "error":
+        return res
+        
+    process_host_payout(host_id, total_cost, host_amount)
+    add_admin_earnings(admin_amount)
+    return {"status": "success", "message": f"വോയിസ് കോൾ ചാർജ് ചെയ്തു: {total_cost} രൂപ"}
+
+# 3. വീഡിയോ കോൾ (ഹോസ്റ്റിന് 12 രൂപ/മിനിറ്റ്, ബാക്കി 3 രൂപ അഡ്മിന്)
+@app.post("/charge-video-call")
+def charge_video_call(user_id: int, host_id: int, minutes: float = 1.0):
+    total_cost = 15.0 * minutes
+    host_amount = 12.0 * minutes
+    admin_amount = 3.0 * minutes
+    
+    res = deduct_user_balance(user_id, total_cost)
+    if res["status"] == "error":
+        return res
+        
+    process_host_payout(host_id, total_cost, host_amount)
+    add_admin_earnings(admin_amount)
+    return {"status": "success", "message": f"വീഡിയോ കോൾ ചാർജ് ചെയ്തു: {total_cost} രൂപ"}
+
+# അഡ്മിന് കിട്ടിയ മൊത്തം തുക പരിശോധിക്കാനുള്ള API
+@app.get("/admin-balance")
+def get_admin_balance():
+    cursor.execute("SELECT total_balance FROM admin_earnings WHERE id = 1")
+    result = cursor.fetchone()
+    balance = result[0] if result else 0.0
+    return {"admin_balance": balance}
