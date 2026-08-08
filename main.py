@@ -19,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-    cursor.execute("""
+cursor.execute("""
         CREATE TABLE IF NOT EXISTS likes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             from_user_id INTEGER,
