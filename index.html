@@ -194,14 +194,7 @@
     let profiles = [];
     let currentIndex = 0;
     const currentUserId = 1;
-
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const auth = firebase.auth();
-    const provider = new firebase.auth.GoogleAuthProvider();
-
-  const firebaseConfig = {
+ const firebaseConfig = {
   apiKey: "AIzaSyCJaKi1UUc7p2CXfFjpaFkStvKqd2kcDOM",
   authDomain: "kinnaram.firebaseapp.com",
   projectId: "kinnaram",
@@ -210,9 +203,12 @@
   appId: "1:426509746066:web:622d9f74936b9c600c4b4b",
   measurementId: "G-VCJVYQ2YDR"
 };
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
+
     function loginWithGoogle() {
         auth.signInWithRedirect(provider)
             .then((result) => {
