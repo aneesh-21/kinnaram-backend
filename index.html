@@ -209,17 +209,23 @@
     const auth = firebase.auth();
     const provider = new firebase.auth.GoogleAuthProvider();
 
-    function loginWithGoogle() {
-        auth.signInWithRedirect(provider)
-            .then((result) => {
-                const user = result.user;
-                alert(`Welcome ${user.displayName}! 🎉`);
-                document.getElementById('login-modal').style.display = 'none';
-            })
-            .catch((error) => {
-                console.log("Firebase not configured yet, continuing demo mode:", error);
-                document.getElementById('login-modal').style.display = 'none';
-            });
+// Handle redirect result when user returns
+auth.getRedirectResult()
+  .then((result) => {
+    if (result.user) {
+      const user = result.user;
+      alert(`Welcome ${user.displayName}! 🎉`);
+      document.getElementById('login-modal').style.display = 'none';
+    }
+  })
+  .catch((error) => {
+    console.error("Redirect Error:", error);
+  });
+
+function loginWithGoogle() {
+    auth.signInWithRedirect(provider);
+}
+}
 
     function switchTab(tab) {
         if (tab === 'explore') {
