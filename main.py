@@ -144,22 +144,33 @@ def request_withdrawal(host_id: int, request_amount: float):
         "message": f"{request_amount} രൂപ പിൻവലിക്കാനുള്ള അപേക്ഷ സ്വീകരിച്ചു.",
         "remaining_balance": remaining_balance
     }
-# ചാറ്റ് ചെയ്യാനോ കോൾ ചെയ്യാനോ പണം ഈടാക്കുന്ന API
-@app.post("/deduct-payment")
-def deduct_payment(user_id: int, amount: float):
-    # ആദ്യം യൂസറുടെ വാലറ്റ് ബാലൻസ് പരിശോധിക്കുന്നു
-    # (യൂസർ വാലറ്റ് ടേബിൾ ഇതിനകം ഉണ്ടെന്ന് കരുതുന്നു)
+
+# 1 രൂപ മെസ്സേജ് ചാർജ്ജ്
+@app.post("/charge-message")
+def charge_message(user_id: int):
+    return deduct_user_balance(user_id, 1.0)
+
+# 10 രൂപ വോയിസ് കോൾ ചാർജ്ജ്
+@app.post("/charge-voice-call")
+def charge_voice_call(user_id: int):
+    return deduct_user_balance(user_id, 10.0)
+
+# 15 രൂപ വീഡിയോ കോൾ ചാർജ്ജ്
+@app.post("/charge-video-call")
+def charge_video_call(user_id: int):
+    return deduct_user_balance(user_id, 15.0)
+
+# വാലറ്റിൽ നിന്ന് പണം കുറയ്ക്കുന്ന കോമൺ ഫങ്ഷൻ
+def deduct_user_balance(user_id: int, amount: float):
     cursor.execute("SELECT balance FROM user_wallets WHERE user_id = ?", (user_id,))
     result = cursor.fetchone()
     
     if not result or result[0] < amount:
         return {"status": "error", "message": "ബാലൻസ് കുറവാണ്, റീചാർജ് ചെയ്യുക"}
     
-    # ബാലൻസിൽ നിന്ന് തുക കുറയ്ക്കുന്നു
     cursor.execute(
         "UPDATE user_wallets SET balance = balance - ? WHERE user_id = ?",
         (amount, user_id)
     )
     conn.commit()
-    
-    return {"status": "success", "message": "പേയ്‌മെന്റ് വിജയകരമായി പൂർത്തിയായി"}
+    return {"status": "success", "message": f"{amount} രൂപ ഈടാക്കി"}
