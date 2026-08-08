@@ -27,7 +27,7 @@ cursor.execute("""
         )
     """)
 conn.commit()
-conn.close()
+
 
 class UserCreate(BaseModel):
     name: str
@@ -54,7 +54,7 @@ def get_profiles():
     cursor = conn.cursor()
     cursor.execute("SELECT id, name, age, location, bio, photo_url FROM users")
     rows = cursor.fetchall()
-    conn.close()
+ 
     
     profiles = []
     for row in rows:
@@ -77,7 +77,7 @@ def add_user(user: UserCreate):
         (user.name, user.age, user.location, user.bio, user.photo_url)
     )
     conn.commit()
-    conn.close()
+
     return {"message": "Profile created successfully"}
 
 @app.post("/like")
@@ -96,7 +96,7 @@ def like_user(like: LikeRequest):
     )
     match = cursor.fetchone()
     conn.commit()
-    conn.close()
+ 
     
     if match:
         return {"status": "match", "message": "It's a Match!"}
