@@ -299,3 +299,6 @@ CREATE TABLE IF NOT EXISTS likes (
 
 conn.commit()
 
+@app.get("/manifest.json")
+async def get_manifest():
+    return FileResponse("manifest.json")
