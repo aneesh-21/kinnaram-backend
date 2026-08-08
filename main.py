@@ -298,4 +298,4 @@ CREATE TABLE IF NOT EXISTS likes (
 """)
 
 conn.commit()
-conn.close()
+
