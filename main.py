@@ -114,3 +114,33 @@ def like_user(like: LikeRequest):
         return {"status": "match", "message": "It's a Match!"}
     
     return {"status": "liked", "message": "Like recorded"}
+# ഹോസ്റ്റുകൾക്ക് പണം പിൻവലിക്കാനുള്ള അപേക്ഷ നൽകാനുള്ള API
+@app.post("/request-withdrawal")
+def request_withdrawal(host_id: int, request_amount: float):
+    # ഹോസ്റ്റിന്റെ അക്കൗണ്ടിൽ ആവശ്യത്തിന് പൈസ ഉണ്ടോ എന്ന് നോക്കാം
+    cursor.execute("SELECT available_balance FROM host_earnings WHERE host_id = ?", (host_id,))
+    result = cursor.fetchone()
+
+    if not result:
+        return {"status": "error", "message": "ഹോസ്റ്റിനെ കണ്ടെത്താൻ കഴിഞ്ഞില്ല"}
+
+    available_balance = result[0]
+
+    # ചോദിച്ച തുക അക്കൗണ്ടിലുള്ളതിനേക്കാൾ കൂടുതലാണെങ്കിൽ എറർ കാണിക്കുക
+    if request_amount > available_balance:
+        return {"status": "error", "message": "അക്കൗണ്ടിൽ ആവശ്യത്തിന് പണമില്ല"}
+
+    # പണം ഉണ്ടെങ്കിൽ, ബാലൻസിൽ നിന്ന് ആ തുക കുറയ്ക്കാം
+    cursor.execute(
+        "UPDATE host_earnings SET available_balance = available_balance - ? WHERE host_id = ?",
+        (request_amount, host_id)
+    )
+    conn.commit()
+
+    remaining_balance = available_balance - request_amount
+    
+    return {
+        "status": "success",
+        "message": f"{request_amount} രൂപ പിൻവലിക്കാനുള്ള അപേക്ഷ സ്വീകരിച്ചു.",
+        "remaining_balance": remaining_balance
+    }
