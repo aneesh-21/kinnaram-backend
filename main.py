@@ -113,4 +113,4 @@ def like_user(like: LikeRequest):
     if match:
         return {"status": "match", "message": "It's a Match!"}
     
-  return {"status": "liked", "message": "Like recorded"}
+    return {"status": "liked", "message": "Like recorded"}
