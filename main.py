@@ -96,7 +96,7 @@ def add_user(user: UserCreate):
 def like_user(like: LikeRequest):
     conn = sqlite3.connect("dating_app.db")
     cursor = conn.cursor()
-   cursor.execute(
+    cursor.execute(
         "INSERT INTO likes (from_user_id, to_user_id) VALUES (?, ?)",
         (like.from_user_id, like.to_user_id)
     )
@@ -112,4 +112,5 @@ def like_user(like: LikeRequest):
     
     if match:
         return {"status": "match", "message": "It's a Match!"}
-    return {"status": "liked", "message": "Like recorded"}
+    
+  return {"status": "liked", "message": "Like recorded"}
